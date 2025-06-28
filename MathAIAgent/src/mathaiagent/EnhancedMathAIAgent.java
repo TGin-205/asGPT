@@ -1,7 +1,6 @@
 package mathaiagent;
 
-// ===== MAIN AI AGENT CLASS =====
-
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 public class EnhancedMathAIAgent {
@@ -39,22 +38,22 @@ public class EnhancedMathAIAgent {
 
     private void displayWelcomeMessage() {
         System.out.println("╔══════════════════════════════════════════════════════════════╗");
-        System.out.println("║                    🤖 AI MATH AGENT 2.0                     ║");
-        System.out.println("║                  Tro ly toan hoc thong minh                  ║");
+        System.out.println("║                    🤖 TRỢ LÝ TOÁN HỌC AI 2.0                 ║");
+        System.out.println("║                Trợ lý toán học thông minh                  ║");
         System.out.println("╠══════════════════════════════════════════════════════════════╣");
-        System.out.println("║ Tinh nang:                                                   ║");
-        System.out.println("║ • Hieu ngon ngu tu nhien tieng Viet & English               ║");
-        System.out.println("║ • Hoc tu tuong tac cua ban                                   ║");
-        System.out.println("║ • Goi y bai toan phu hop                                     ║");
-        System.out.println("║ • Giai thich chi tiet                                        ║");
+        System.out.println("║ Tính năng:                                                   ║");
+        System.out.println("║ • Hiểu ngôn ngữ tự nhiên tiếng Việt & English               ║");
+        System.out.println("║ • Học từ tương tác của bạn                                   ║");
+        System.out.println("║ • Gợi ý bài toán phù hợp                                     ║");
+        System.out.println("║ • Giải thích chi tiết                                        ║");
         System.out.println("╠══════════════════════════════════════════════════════════════╣");
-        System.out.println("║ Lenh dac biet:                                               ║");
-        System.out.println("║ 'help' - Huong dan su dung                                  ║");
-        System.out.println("║ 'stats' - Thong ke hoc tap                                  ║");
-        System.out.println("║ 'recommend' - Goi y bai toan                                ║");
-        System.out.println("║ 'exit' - Thoat chuong trinh                                 ║");
+        System.out.println("║ Lệnh đặc biệt:                                               ║");
+        System.out.println("║ 'help' - Hướng dẫn sử dụng                                  ║");
+        System.out.println("║ 'stats' - Thống kê học tập                                  ║");
+        System.out.println("║ 'recommend' - Gợi ý bài toán                                ║");
+        System.out.println("║ 'exit' - Thoát chương trình                                 ║");
         System.out.println("╚══════════════════════════════════════════════════════════════╝");
-        System.out.println("\n💡 Thu noi: 'Tinh sin(30 do)' hoac 'What is 5 squared?'");
+        System.out.println("\n💡 Thử nói: 'Tính sin(30 độ)' hoặc 'What is 5 squared?'");
     }
 
     private void handleCommand(String input) {
@@ -89,17 +88,18 @@ public class EnhancedMathAIAgent {
 
     private void displayGoodbyeMessage() {
         System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
-        System.out.println("║                     👋 TAM BIET!                             ║");
+        System.out.println("║                     👋 TẠM BIỆT!                             ║");
         System.out.println("║                                                              ║");
-        System.out.println("║  Cam on ban da su dung AI Math Agent!                       ║");
-        System.out.println("║  Toi da hoc duoc nhieu tu cuoc tro chuyen nay.               ║");
+        System.out.println("║  Cảm ơn bạn đã sử dụng Trợ lý Toán Học AI!                  ║");
+        System.out.println("║  Tôi đã học được nhiều từ cuộc trò chuyện này.              ║");
         System.out.println("╚══════════════════════════════════════════════════════════════╝");
 
-        // Show final learning stats
         learningSystem.showLearningStats();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedEncodingException {
+        System.setOut(new java.io.PrintStream(System.out, true, "UTF-8"));
+
         EnhancedMathAIAgent agent = new EnhancedMathAIAgent();
         agent.start();
     }
@@ -107,13 +107,11 @@ public class EnhancedMathAIAgent {
     private void processNaturalLanguageInput(String input) {
         long startTime = System.currentTimeMillis();
 
-        // Process input through NLP
         ProcessedInput processed = nlp.process(input);
 
-        System.out.println("🧠 Phan tich: " + processed.getIntent()
-                + " | Do phuc tap: " + getComplexityLabel(processed.getComplexityLevel()));
+        System.out.println("🧠 Phân tích: " + processed.getIntent()
+                + " | Độ phức tạp: " + getComplexityLabel(processed.getComplexityLevel()));
 
-        // Handle based on intent
         switch (processed.getIntent()) {
             case "CALCULATION":
                 handleCalculation(processed);
@@ -131,100 +129,97 @@ public class EnhancedMathAIAgent {
         long endTime = System.currentTimeMillis();
         double responseTime = endTime - startTime;
 
-        // Record interaction for learning
-        learningSystem.recordInteraction(input, "Response generated", true, responseTime);
+        learningSystem.recordInteraction(input, "Phản hồi được tạo", true, responseTime);
     }
 
     private void handleCalculation(ProcessedInput processed) {
         if (processed.getMathExpression().isEmpty()) {
-            System.out.println("❌ Khong tim thay bieu thuc toan hoc trong cau hoi cua ban.");
-            System.out.println("💡 Thu: 'Tinh 5 + 3' hoac 'What is 2 * 7?'");
+            System.out.println("❌ Không tìm thấy biểu thức toán học trong câu hỏi của bạn.");
+            System.out.println("💡 Thử: 'Tính 5 + 3' hoặc 'What is 2 * 7?'");
             return;
         }
 
         EvaluationResult result = evaluator.evaluate(processed.getMathExpression(), processed.getParameters());
 
         if (result.isSuccessful()) {
-            System.out.println("✅ Ket qua: " + result.getFormattedResult());
-            System.out.printf("⚡ Thoi gian xu ly: %.2f ms\n", result.getResponseTime());
+            System.out.println("✅ Kết quả: " + result.getFormattedResult());
+            System.out.printf("⚡ Thời gian xử lý: %.2f ms\n", result.getResponseTime());
 
-            // Provide additional context based on complexity
             if (processed.getComplexityLevel() >= 2) {
                 provideAdditionalContext(processed.getMathExpression(), result.getNumericResult());
             }
         } else {
             System.out.println("❌ " + result.getMessage());
-            System.out.println("💡 Kiem tra lai cu phap hoac thu cach dien dat khac.");
+            System.out.println("💡 Kiểm tra lại cú pháp hoặc thử cách diễn đạt khác.");
         }
     }
 
     private void handleExplanation(ProcessedInput processed) {
-        System.out.println("🎓 Giai thich:");
+        System.out.println("🎓 Giải thích:");
 
         if (!processed.getMathExpression().isEmpty()) {
-            // Provide step-by-step explanation
             explainMathematicalConcept(processed.getMathExpression());
         } else {
-            System.out.println("Hay cung cap mot bieu thuc toan hoc cu the de toi co the giai thich chi tiet.");
+            System.out.println("Hãy cung cấp một biểu thức toán học cụ thể để tôi có thể giải thích chi tiết.");
         }
     }
 
     private void handleComparison(ProcessedInput processed) {
-        System.out.println("⚖️ So sanh:");
-        System.out.println("Tinh nang so sanh dang duoc phat trien...");
+        System.out.println("⚖️ So sánh:");
+        System.out.println("Tính năng so sánh đang được phát triển...");
     }
 
     private void handleGeneral(ProcessedInput processed) {
-        System.out.println("🤔 Toi hieu ban muon: " + processed.getOriginalInput());
+        System.out.println("🤔 Tôi hiểu bạn muốn: " + processed.getOriginalInput());
 
         if (!processed.getMathExpression().isEmpty()) {
             handleCalculation(processed);
         } else {
-            System.out.println("💭 Ban co the dien dat ro hon hoac thu mot phep tinh cu the khong?");
+            System.out.println("💭 Bạn có thể diễn đạt rõ hơn hoặc thử một phép tính cụ thể không?");
         }
     }
 
     private String getComplexityLabel(int level) {
         switch (level) {
             case 1:
-                return "Co ban";
+                return "Cơ bản";
             case 2:
-                return "Trung binh";
+                return "Trung bình";
             case 3:
-                return "Nang cao";
+                return "Nâng cao";
             default:
-                return "Khong xac dinh";
+                return "Không xác định";
         }
     }
 
     private void displayHelp() {
         System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
-        System.out.println("║                    📖 HUONG DAN SU DUNG                     ║");
+        System.out.println("║                    📖 HƯỚNG DẪN SỬ DỤNG                      ║");
         System.out.println("╠══════════════════════════════════════════════════════════════╣");
-        System.out.println("║ Cac lenh co ban:                                            ║");
-        System.out.println("║ • Phep tinh: '5 + 3', 'tinh 10 - 4'                         ║");
-        System.out.println("║ • Luong giac: 'sin(30)', 'cos(45 do)'                       ║");
-        System.out.println("║ • Mu va can: '2^3', 'sqrt(25)'                              ║");
-        System.out.println("║ • Logarithm: 'log(100)', 'ln(e)'                            ║");
+        System.out.println("║ Các lệnh cơ bản:                                            ║");
+        System.out.println("║ • Phép tính: '5 + 3', 'tính 10 - 4'                         ║");
+        System.out.println("║ • Lượng giác: 'sin(30)', 'cos(45 độ)'                       ║");
+        System.out.println("║ • Mũ và căn: '2^3', 'sqrt(25)'                              ║");
+        System.out.println("║ • Logarit: 'log(100)', 'ln(e)'                              ║");
         System.out.println("╠══════════════════════════════════════════════════════════════╣");
-        System.out.println("║ Vi du cu phap:                                              ║");
-        System.out.println("║ • 'Tinh 5 cong 3'                                           ║");
+        System.out.println("║ Ví dụ cú pháp:                                              ║");
+        System.out.println("║ • 'Tính 5 cộng 3'                                           ║");
         System.out.println("║ • 'What is 2 times 7?'                                      ║");
         System.out.println("║ • 'Calculate sin(30 degrees)'                               ║");
-        System.out.println("║ • 'Giai thich sqrt(16)'                                     ║");
+        System.out.println("║ • 'Giải thích sqrt(16)'                                     ║");
         System.out.println("╚══════════════════════════════════════════════════════════════╝");
     }
 
     private void displayRecommendations() {
-        System.out.println("\n🎯 GOI Y BAI TOAN PHU HOP:");
+        System.out.println("\n🎯 GỢI Ý BÀI TOÁN PHÙ HỢP:");
         System.out.println("════════════════════════════════════════════════════════════");
-        
+
         List<String> recommendations = learningSystem.getRecommendations();
         for (int i = 0; i < recommendations.size(); i++) {
             System.out.println((i + 1) + ". " + recommendations.get(i));
         }
-        
-        System.out.println("\n💡 Thu mot trong nhung goi y tren hoac tiep tuc voi cau hoi cua ban!");
+
+        System.out.println("\n💡 Thử một trong những gợi ý trên hoặc tiếp tục với câu hỏi của bạn!");
     }
 
     private void explainMathematicalConcept(String mathExpression) {
@@ -234,22 +229,22 @@ public class EnhancedMathAIAgent {
     }
 
     private void provideAdditionalContext(String mathExpression, double result) {
-        System.out.println("\n📚 THONG TIN THEM:");
+        System.out.println("\n📚 THÔNG TIN THÊM:");
         System.out.println("─────────────────────────────────────");
-        
+
         if (mathExpression.contains("sin") || mathExpression.contains("cos") || mathExpression.contains("tan")) {
-            System.out.println("🔄 Luu y: Ket qua luong giac co the thay doi tuy theo don vi (do/radian)");
-            System.out.println("📐 Gia tri dac biet: sin(30°) = 0.5, cos(60°) = 0.5, tan(45°) = 1");
+            System.out.println("🔄 Lưu ý: Kết quả lượng giác có thể thay đổi tuỳ theo đơn vị (độ/radian)");
+            System.out.println("📐 Giá trị đặc biệt: sin(30°) = 0.5, cos(60°) = 0.5, tan(45°) = 1");
         }
-        
+
         if (mathExpression.contains("sqrt")) {
-            System.out.println("🌟 Can bac hai luon co gia tri duong trong so thuc");
-            System.out.println("📝 Vi du: √16 = 4 (chi lay gia tri duong)");
+            System.out.println("🌟 Căn bậc hai luôn có giá trị dương trong số thực");
+            System.out.println("📝 Ví dụ: √16 = 4 (chỉ lấy giá trị dương)");
         }
-        
+
         if (mathExpression.contains("^") || mathExpression.contains("pow")) {
-            System.out.println("⚡ Luy thua: a^n = a × a × ... × a (n lan)");
-            System.out.println("🔢 Luu y: Moi so mu 0 deu bang 1 (tru 0^0)");
+            System.out.println("⚡ Lũy thừa: a^n = a × a × ... × a (n lần)");
+            System.out.println("🔢 Lưu ý: Mọi số mũ 0 đều bằng 1 (trừ 0^0)");
         }
     }
 }
