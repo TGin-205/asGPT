@@ -3,12 +3,12 @@ package mathaiagent;
 import java.util.*;
 
 public class LearningSystem {
-    private Map<String, Integer> patternFrequency;
-    private Map<String, List<String>> userPreferences;
-    private Map<String, Double> accuracyHistory;
-    private List<InteractionRecord> interactionHistory;
+    private final Map<String, Integer> patternFrequency;
+    private final Map<String, List<String>> userPreferences;
+    private final Map<String, Double> accuracyHistory;
+    private final List<InteractionRecord> interactionHistory;
     // RecommendationEngine should be defined or stubbed
-    private RecommendationEngine recommendationEngine;
+    private final RecommendationEngine recommendationEngine;
     
     public LearningSystem() {
         this.patternFrequency = new HashMap<>();

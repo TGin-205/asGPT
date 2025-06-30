@@ -5,10 +5,10 @@ import java.util.*;
 
 public class EnhancedMathAIAgent {
 
-    private NaturalLanguageProcessor nlp;
-    private EnhancedMathEvaluator evaluator;
-    private LearningSystem learningSystem;
-    private Scanner scanner;
+    private final NaturalLanguageProcessor nlp;
+    private final EnhancedMathEvaluator evaluator;
+    private final LearningSystem learningSystem;
+    private final Scanner scanner;
     private boolean isRunning;
 
     public EnhancedMathAIAgent() {
@@ -37,23 +37,25 @@ public class EnhancedMathAIAgent {
     }
 
     private void displayWelcomeMessage() {
-        System.out.println("╔══════════════════════════════════════════════════════════════╗");
-        System.out.println("║                    🤖 TRỢ LÝ TOÁN HỌC AI 2.0                 ║");
-        System.out.println("║                Trợ lý toán học thông minh                  ║");
-        System.out.println("╠══════════════════════════════════════════════════════════════╣");
-        System.out.println("║ Tính năng:                                                   ║");
-        System.out.println("║ • Hiểu ngôn ngữ tự nhiên tiếng Việt & English               ║");
-        System.out.println("║ • Học từ tương tác của bạn                                   ║");
-        System.out.println("║ • Gợi ý bài toán phù hợp                                     ║");
-        System.out.println("║ • Giải thích chi tiết                                        ║");
-        System.out.println("╠══════════════════════════════════════════════════════════════╣");
-        System.out.println("║ Lệnh đặc biệt:                                               ║");
-        System.out.println("║ 'help' - Hướng dẫn sử dụng                                  ║");
-        System.out.println("║ 'stats' - Thống kê học tập                                  ║");
-        System.out.println("║ 'recommend' - Gợi ý bài toán                                ║");
-        System.out.println("║ 'exit' - Thoát chương trình                                 ║");
-        System.out.println("╚══════════════════════════════════════════════════════════════╝");
-        System.out.println("\n💡 Thử nói: 'Tính sin(30 độ)' hoặc 'What is 5 squared?'");
+        System.out.println("╔════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                        TRỢ LÝ TOÁN HỌC AI 2.0                      ║");
+        System.out.println("║                   Trợ lý toán học thông minh                      ║");
+        System.out.println("╠════════════════════════════════════════════════════════════════════╣");
+        System.out.println("║ Tính năng:                                                         ║");
+        System.out.println("║ • Hiểu ngôn ngữ tự nhiên tiếng Việt & English                     ║");
+        System.out.println("║ • Học từ tương tác của bạn                                        ║");
+        System.out.println("║ • Gợi ý bài toán phù hợp                                          ║");
+        System.out.println("║ • Giải thích chi tiết                                             ║");
+        System.out.println("╠════════════════════════════════════════════════════════════════════╣");
+        System.out.println("║ Lệnh đặc biệt:                                                     ║");
+        System.out.println("║ 'help'      - Hướng dẫn sử dụng                                   ║");
+        System.out.println("║ 'stats'     - Thống kê học tập                                    ║");
+        System.out.println("║ 'recommend' - Gợi ý bài toán                                      ║");
+        System.out.println("║ 'exit'      - Thoát chương trình                                  ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════════╝");
+        System.out.println();
+        System.out.println("💡 Thử nói: 'Tính sin(30 độ)' hoặc 'What is 5 squared?'");
+
     }
 
     private void handleCommand(String input) {
