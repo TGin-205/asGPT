@@ -1,6 +1,7 @@
 package view;
 
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public abstract class Menu {
@@ -31,8 +32,15 @@ public abstract class Menu {
     public int getSelected() {
         display();
         Scanner sc = new Scanner(System.in);
-        System.out.print("Enter selection..");
-        return sc.nextInt();
+        while (true) {
+            try {
+                System.out.print("Enter selection..");
+                return sc.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Vui lòng nhập số!");
+                sc.nextLine(); // Clear invalid input
+            }
+        }
     }
 
     public abstract void execute(int n);

@@ -3,6 +3,8 @@ package controller;
 import model.MathSolver;
 import view.MathView;
 import java.io.*;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 public class MathController {
@@ -15,6 +17,11 @@ public class MathController {
         view = new MathView();
     }
 
+    // Thêm method này để GUI có thể truy cập model
+    public MathSolver getModel() {
+        return model;
+    }
+
     public void solveProblem() {
         try {
             String problem = view.inputProblem();
@@ -22,13 +29,23 @@ public class MathController {
                 view.showMessage("Vui lòng nhập bài toán!");
                 return;
             }
+            if (problem.length() > 1000) {
+                view.showError("Bài toán quá dài! (tối đa 1000 ký tự)");
+                return;
+            }
 
             view.showMessage("🤖 Đang giải...");
             String result = model.solveMath(problem);
             view.showResult(result);
 
+        } catch (ConnectException e) {
+            view.showError("Lỗi kết nối: Không thể kết nối Ollama!");
+        } catch (SocketTimeoutException e) {
+            view.showError("Lỗi timeout: Ollama mất quá lâu để phản hồi!");
+        } catch (IOException e) {
+            view.showError("Lỗi I/O: " + e.getMessage());
         } catch (Exception e) {
-            view.showError("Lỗi: " + e.getMessage());
+            view.showError("Lỗi không xác định: " + e.getMessage());
         }
     }
 
@@ -87,5 +104,3 @@ public class MathController {
         view.showHelp();
     }
 }
-
-
