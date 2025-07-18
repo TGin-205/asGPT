@@ -24,26 +24,28 @@ public class MathSolverApp {
         try {
             int choice = scanner.nextInt();
 
-            if (choice == 1) {
-                // Chạy GUI
-                SwingUtilities.invokeLater(() -> {
-                    try {
-                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    new MathSolverGUI().setVisible(true);
-                });
-            } else if (choice == 2) {
-                // Chạy Console menu
-                MathSolverMenu menu = new MathSolverMenu();
-                menu.run();
-            } else {
-                System.out.println("Lựa chọn không hợp lệ! Chạy GUI mặc định...");
-                SwingUtilities.invokeLater(() -> {
-                    new MathSolverGUI().setVisible(true);
-                });
+            switch (choice) {
+                case 1 -> // Chạy GUI
+                    SwingUtilities.invokeLater(() -> {
+                        try {
+                            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        
+                        new MathSolverGUI().setVisible(true);
+                    });
+                case 2 -> {
+                    // Chạy Console menu
+                    MathSolverMenu menu = new MathSolverMenu();
+                    menu.run();
+                }
+                default -> {
+                    System.out.println("Lựa chọn không hợp lệ! Chạy GUI mặc định...");
+                    SwingUtilities.invokeLater(() -> {
+                        new MathSolverGUI().setVisible(true);
+                    });
+                }
             }
 
         } catch (Exception e) {
