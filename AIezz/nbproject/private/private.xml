@@ -3,15 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group name="ass">
-            <file>file:/E:/pro192net25/AssignmentAgentAI/src/model/MathSolver.java</file>
-            <file>file:/E:/pro192net25/AssignmentAgentAI/src/view/MathSolverMenu.java</file>
-            <file>file:/E:/pro192net25/AssignmentAgentAI/src/view/MathView.java</file>
-            <file>file:/E:/pro192net25/AssignmentAgentAI/src/view/Menu.java</file>
-            <file>file:/E:/pro192net25/AssignmentAgentAI/src/controller/MathController.java</file>
-            <file>file:/E:/pro192net25/AssignmentAgentAI/src/main/MathSolverConsole.java</file>
             <file>file:/E:/pro192net25/AssignmentAgentAI/src/main/MathSolverApp.java</file>
-            <file>file:/E:/pro192net25/AssignmentAgentAI/src/view/MathSolverGUI.java</file>
-            <file>file:/E:/pro192net25/AssignmentAgentAI/src/model/Question.java</file>
+            <file>file:/E:/pro192net25/AssignmentAgentAI/src/model/MathSolver.java</file>
+            <file>file:/E:/pro192net25/AssignmentAgentAI/src/controller/MathController.java</file>
+            <file>file:/E:/pro192net25/AssignmentAgentAI/src/view/MathView.java</file>
+            <file>file:/E:/pro192net25/AssignmentAgentAI/src/view/MathSolverMenu.java</file>
         </group>
     </open-files>
 </project-private>

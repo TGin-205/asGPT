@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.List;
+import model.Question;
 
 public class MathController {
 
@@ -65,53 +66,64 @@ public class MathController {
         }
     }
 
-    public void generateSimilarProblems() {
+    public void deleteQuestion() {
         try {
-            String problem = view.inputProblem();
-            if (problem == null || problem.trim().isEmpty()) {
-                view.showMessage("Vui lòng nhập bài toán mẫu!");
+            String id = view.inputQuestionId();
+            if (id == null || id.trim().isEmpty()) {
+                view.showMessage("Vui lòng nhập ID!");
                 return;
             }
 
-            view.showMessage("🎯 Đang tạo bài tương tự...");
-            String similar = model.generateSimilarProblem(problem);
-            view.showResult("📝 Bài toán tương tự:\n" + similar);
-
-        } catch (Exception e) {
-            view.showError("Lỗi khi tạo bài tương tự: " + e.getMessage());
-        }
-    }
-
-
-    public void assessDifficulty() {
-        try {
-            String problem = view.inputProblem();
-            if (problem == null || problem.trim().isEmpty()) {
-                view.showMessage("Vui lòng nhập bài toán cần đánh giá!");
+            Question question = model.findQuestionById(id);
+            if (question == null) {
+                view.showMessage("❌ Không tìm thấy câu hỏi với ID: " + id);
                 return;
             }
 
-            view.showMessage("🔍 Đang đánh giá độ khó...");
-            String assessment = model.assessDifficulty(problem);
-            view.showResult("📊 Đánh giá độ khó:\n" + assessment);
+            // Hiển thị thông tin câu hỏi trước khi xóa
+            view.showQuestion(question);
+
+            // Xác nhận xóa
+            if (view.confirmDelete()) {
+                if (model.deleteQuestion(id)) {
+                    view.showMessage("✅ Đã xóa câu hỏi thành công!");
+                } else {
+                    view.showMessage("❌ Không thể xóa câu hỏi!");
+                }
+            } else {
+                view.showMessage("Đã hủy xóa câu hỏi.");
+            }
 
         } catch (Exception e) {
-            view.showError("Lỗi khi đánh giá: " + e.getMessage());
+            view.showError("Lỗi khi xóa câu hỏi: " + e.getMessage());
         }
     }
 
-    // TÍNH NĂNG MỚI - Tìm kiếm lịch sử
     public void searchHistory() {
         try {
-            String keyword = view.inputFilename("Nhập từ khóa tìm kiếm");
+            String[] searchInput = view.inputSearch();
+            String type = searchInput[0];
+            String keyword = searchInput[1];
+
             if (keyword == null || keyword.trim().isEmpty()) {
                 view.showMessage("Vui lòng nhập từ khóa!");
                 return;
             }
 
-            List<String> results = model.searchHistory(keyword);
+            MathSolver.SearchType searchType = switch (type) {
+                case "2" ->
+                    MathSolver.SearchType.QUESTION;
+                case "3" ->
+                    MathSolver.SearchType.ANSWER;
+                case "4" ->
+                    MathSolver.SearchType.DIFFICULTY;
+                default ->
+                    MathSolver.SearchType.ALL;
+            };
+
+            List<Question> results = model.searchHistory(keyword, searchType);
             if (results.isEmpty()) {
-                view.showMessage("Không tìm thấy bài toán nào chứa: " + keyword);
+                view.showMessage("Không tìm thấy kết quả nào cho: " + keyword);
             } else {
                 view.showMessage("🔍 Kết quả tìm kiếm cho '" + keyword + "':");
                 view.showHistory(results);
@@ -127,7 +139,7 @@ public class MathController {
         try {
             String historyStats = model.getHistoryStats();
             String cacheStats = model.getCacheStats();
-            
+
             view.showMessage("📊 THỐNG KÊ HỆ THỐNG:");
             view.showMessage(historyStats);
             view.showMessage(cacheStats);
@@ -148,9 +160,8 @@ public class MathController {
         }
     }
 
-    // CÁC TÍNH NĂNG CŨ (giữ nguyên)
     public void showHistory() {
-        List<String> history = model.getHistory();
+        List<Question> history = model.getHistory();
         view.showHistory(history);
     }
 
@@ -158,7 +169,7 @@ public class MathController {
         try {
             String filename = view.inputFilename("Nhập tên file để lưu");
             if (filename == null || filename.trim().isEmpty()) {
-                filename = "math_history.txt";
+                filename = "math_history.dat"; // Đổi extension thành .dat vì là file binary
             }
 
             model.saveHistory(filename);
@@ -173,11 +184,12 @@ public class MathController {
         try {
             String filename = view.inputFilename("Nhập tên file để đọc");
             if (filename == null || filename.trim().isEmpty()) {
-                filename = "math_history.txt";
+                filename = "math_history.dat";
             }
 
             model.loadHistory(filename);
             view.showMessage("✅ Đã tải lịch sử từ " + filename);
+            showHistory(); // Hiển thị lịch sử sau khi load
 
         } catch (FileNotFoundException e) {
             view.showError("File không tồn tại: " + e.getMessage());
@@ -197,6 +209,34 @@ public class MathController {
             view.showMessage("1. Đã cài Ollama");
             view.showMessage("2. Chạy: ollama serve");
             view.showMessage("3. Tải model: ollama pull mistral");
+        }
+    }
+
+    public void addCustomQuestion() {
+        try {
+            String question = view.inputCustomQuestion();
+            if (question == null || question.trim().isEmpty()) {
+                view.showMessage("Vui lòng nhập câu hỏi!");
+                return;
+            }
+
+            String answer = view.inputCustomAnswer();
+            if (answer == null || answer.trim().isEmpty()) {
+                view.showMessage("Vui lòng nhập đáp án!");
+                return;
+            }
+
+            String difficulty = view.inputCustomDifficulty();
+            if (difficulty == null || difficulty.trim().isEmpty()) {
+                view.showMessage("Vui lòng nhập độ khó!");
+                return;
+            }
+
+            model.addCustomQuestion(question, answer, difficulty);
+            view.showMessage("✅ Đã thêm câu hỏi thành công!");
+
+        } catch (Exception e) {
+            view.showError("Lỗi khi thêm câu hỏi: " + e.getMessage());
         }
     }
 

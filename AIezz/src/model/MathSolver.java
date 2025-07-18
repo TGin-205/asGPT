@@ -7,10 +7,10 @@ import java.util.*;
 public class MathSolver {
 
     private static final String OLLAMA_URL = "http://localhost:11434/api/generate";
-    private List<String> history = new ArrayList<>();
-    
+    private List<Question> history = new ArrayList<>();
+
     private final Map<String, String> cache = new HashMap<>();
-    
+
     public MathSolver() {
         history = new ArrayList<>();
     }
@@ -19,14 +19,51 @@ public class MathSolver {
         if (cache.containsKey(problem)) {
             return "📋 Từ bộ nhớ: " + cache.get(problem);
         }
-        
+
         if (history.size() >= 100) {
             history.remove(0);
         }
-        history.add(problem);
 
+        String result = sendToOllamaAndGetResponse(problem);
+
+        // Create and store a new Question object
+        String id = "Q" + (history.size() + 1);
+        Question newQuestion = new Question(id, problem, result, assessDifficultyInternal(problem));
+        history.add(newQuestion);
+
+        cache.put(problem, result);
+        return result;
+    }
+
+    public void addCustomQuestion(String questionText, String answerText, String difficultyLevel) {
+        String id = "Q" + (history.size() + 1);
+        Question question = new Question(id, questionText, answerText, difficultyLevel);
+        history.add(question);
+    }
+
+    public boolean deleteQuestion(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            return false;
+        }
+
+        int indexToRemove = -1;
+        for (int i = 0; i < history.size(); i++) {
+            if (history.get(i).getId().equalsIgnoreCase(id)) {
+                indexToRemove = i;
+                break;
+            }
+        }
+
+        if (indexToRemove != -1) {
+            history.remove(indexToRemove);
+            return true;
+        }
+        return false;
+    }
+
+    private String sendToOllamaAndGetResponse(String problem) throws Exception {
         String prompt = buildPrompt(problem);
-        
+
         String jsonRequest = "{"
                 + "\"model\": \"mistral\","
                 + "\"prompt\": \"" + escapeJson(prompt) + "\","
@@ -35,13 +72,9 @@ public class MathSolver {
                 + "}";
 
         String response = sendToOllama(jsonRequest);
-        String result = extractResponse(response);
-        
-        cache.put(problem, result);
-        
-        return result;
+        return extractResponse(response);
     }
-    
+
     private String buildPrompt(String problem) {
         StringBuilder prompt = new StringBuilder();
         if (problem.contains("=")) {
@@ -51,9 +84,9 @@ public class MathSolver {
             prompt.append("- Trình bày từng bước giải rõ ràng\n");
             prompt.append("- Kiểm tra nghiệm\n");
             prompt.append("- Trả lời ngắn gọn");
-        } else if (problem.toLowerCase().contains("diện tích") || 
-                  problem.toLowerCase().contains("chu vi") ||
-                  problem.toLowerCase().contains("thể tích")) {
+        } else if (problem.toLowerCase().contains("diện tích")
+                || problem.toLowerCase().contains("chu vi")
+                || problem.toLowerCase().contains("thể tích")) {
             prompt.append("Bạn là giáo viên hình học. Hãy giải bài toán sau:\n");
             prompt.append(problem).append("\n");
             prompt.append("Yêu cầu:\n");
@@ -65,18 +98,18 @@ public class MathSolver {
             prompt.append(problem).append("\n");
             prompt.append("Trả lời ngắn gọn với kết quả chính xác.");
         }
-        
+
         return prompt.toString();
     }
 
     public String explainSolution(String problem) throws Exception {
-        String prompt = "Bạn là giáo viên toán học. Hãy giải thích chi tiết cách giải bài toán:\n" +
-                       problem + "\n" +
-                       "Yêu cầu:\n" +
-                       "- Giải thích từng bước một cách dễ hiểu\n" +
-                       "- Nêu lý do tại sao làm như vậy\n" +
-                       "- Đưa ra lời khuyên học tập";
-        
+        String prompt = "Bạn là giáo viên toán học. Hãy giải thích chi tiết cách giải bài toán:\n"
+                + problem + "\n"
+                + "Yêu cầu:\n"
+                + "- Giải thích từng bước một cách dễ hiểu\n"
+                + "- Nêu lý do tại sao làm như vậy\n"
+                + "- Đưa ra lời khuyên học tập";
+
         String jsonRequest = "{"
                 + "\"model\": \"mistral\","
                 + "\"prompt\": \"" + escapeJson(prompt) + "\","
@@ -87,15 +120,15 @@ public class MathSolver {
         String response = sendToOllama(jsonRequest);
         return extractResponse(response);
     }
-    
+
     public String generateSimilarProblem(String problem) throws Exception {
-        String prompt = "Dựa vào bài toán: " + problem + "\n" +
-                       "Hãy tạo 3 bài toán tương tự với độ khó tương đương.\n" +
-                       "Format:\n" +
-                       "Bài 1: ...\n" +
-                       "Bài 2: ...\n" +
-                       "Bài 3: ...";
-        
+        String prompt = "Dựa vào bài toán: " + problem + "\n"
+                + "Hãy tạo 3 bài toán tương tự với độ khó tương đương.\n"
+                + "Format:\n"
+                + "Bài 1: ...\n"
+                + "Bài 2: ...\n"
+                + "Bài 3: ...";
+
         String jsonRequest = "{"
                 + "\"model\": \"mistral\","
                 + "\"prompt\": \"" + escapeJson(prompt) + "\","
@@ -106,13 +139,14 @@ public class MathSolver {
         String response = sendToOllama(jsonRequest);
         return extractResponse(response);
     }
-        public String assessDifficulty(String problem) throws Exception {
-        String prompt = "Hãy đánh giá độ khó của bài toán: " + problem + "\n" +
-                       "Trả lời theo format:\n" +
-                       "Độ khó: [Dễ/Trung bình/Khó]\n" +
-                       "Lý do: ...\n" +
-                       "Kiến thức cần: ...";
-        
+
+    public String assessDifficulty(String problem) throws Exception {
+        String prompt = "Hãy đánh giá độ khó của bài toán: " + problem + "\n"
+                + "Trả lời theo format:\n"
+                + "Độ khó: [Dễ/Trung bình/Khó]\n"
+                + "Lý do: ...\n"
+                + "Kiến thức cần: ...";
+
         String jsonRequest = "{"
                 + "\"model\": \"mistral\","
                 + "\"prompt\": \"" + escapeJson(prompt) + "\","
@@ -146,28 +180,28 @@ public class MathSolver {
             }
 
             String response = jsonResponse.substring(responseStart, responseEnd);
-            
+
             response = cleanResponse(response);
-            
+
             if (response.length() > 2000) {
                 response = response.substring(0, 2000) + "...\n[Phản hồi đã được rút gọn]";
             }
-            
+
             return response.trim();
 
         } catch (Exception e) {
             return "❌ Lỗi xử lý: " + e.getMessage();
         }
     }
-    
+
     private String cleanResponse(String response) {
         return response.replace("\\n", "\n")
-                      .replace("\\\"", "\"")
-                      .replace("\\\\", "\\")
-                      .replace("\\t", "\t")
-                      .replace("\\r", "\r")
-                      .replaceAll("^\\s+", "")  // Xóa khoảng trắng đầu
-                      .replaceAll("\\s+$", ""); // Xóa khoảng trắng cuối
+                .replace("\\\"", "\"")
+                .replace("\\\\", "\\")
+                .replace("\\t", "\t")
+                .replace("\\r", "\r")
+                .replaceAll("^\\s+", "") // Xóa khoảng trắng đầu
+                .replaceAll("\\s+$", ""); // Xóa khoảng trắng cuối
     }
 
     public void clearCache() {
@@ -178,43 +212,73 @@ public class MathSolver {
         return "📊 Cache: " + cache.size() + " bài toán đã lưu";
     }
 
-    public List<String> searchHistory(String keyword) {
-        List<String> results = new ArrayList<>();
-        for (String problem : history) {
-            if (problem.toLowerCase().contains(keyword.toLowerCase())) {
-                results.add(problem);
+    public Question findQuestionById(String id) {
+        for (Question question : history) {
+            if (question.getId().equalsIgnoreCase(id)) {
+                return question;
+            }
+        }
+        return null;
+    }
+
+    public enum SearchType {
+        ALL,
+        QUESTION,
+        ANSWER,
+        DIFFICULTY
+    }
+
+    public List<Question> searchHistory(String keyword, SearchType type) {
+        List<Question> results = new ArrayList<>();
+        keyword = keyword.toLowerCase();
+
+        for (Question question : history) {
+            boolean match = switch (type) {
+                case QUESTION ->
+                    question.getQuestion().toLowerCase().contains(keyword);
+                case ANSWER ->
+                    question.getAnswerS().toLowerCase().contains(keyword);
+                case DIFFICULTY ->
+                    question.getDifficulty().toLowerCase().contains(keyword);
+                case ALL ->
+                    question.getQuestion().toLowerCase().contains(keyword)
+                    || question.getAnswerS().toLowerCase().contains(keyword)
+                    || question.getDifficulty().toLowerCase().contains(keyword);
+            };
+
+            if (match) {
+                results.add(question);
             }
         }
         return results;
     }
-    
+
     // TÍNH NĂNG THÊM - Thống kê lịch sử
     public String getHistoryStats() {
         if (history.isEmpty()) {
             return "📊 Chưa có bài toán nào trong lịch sử";
         }
-        
-        int equations = 0;
-        int calculations = 0;
-        int geometry = 0;
-        
-        for (String problem : history) {
-            if (problem.contains("=")) {
-                equations++;
-            } else if (problem.toLowerCase().contains("diện tích") || 
-                      problem.toLowerCase().contains("chu vi") ||
-                      problem.toLowerCase().contains("thể tích")) {
-                geometry++;
-            } else {
-                calculations++;
+
+        int easy = 0;
+        int medium = 0;
+        int hard = 0;
+
+        for (Question question : history) {
+            switch (question.getDifficulty().toLowerCase()) {
+                case "easy" ->
+                    easy++;
+                case "hard" ->
+                    hard++;
+                default ->
+                    medium++;
             }
         }
-        
-        return "📊 Thống kê lịch sử:\n" +
-               "- Tổng: " + history.size() + " bài\n" +
-               "- Phương trình: " + equations + " bài\n" +
-               "- Hình học: " + geometry + " bài\n" +
-               "- Tính toán: " + calculations + " bài";
+
+        return "📊 Thống kê lịch sử:\n"
+                + "- Tổng: " + history.size() + " bài\n"
+                + "- Dễ: " + easy + " bài\n"
+                + "- Trung bình: " + medium + " bài\n"
+                + "- Khó: " + hard + " bài";
     }
 
     // Gửi request đến Ollama (giữ nguyên)
@@ -266,14 +330,18 @@ public class MathSolver {
                 .replace("\t", "\\t");
     }
 
-    public List<String> getHistory() {
+    public List<Question> getHistory() {
         return new ArrayList<>(history);
     }
 
     public void saveHistory(String filename) throws IOException {
-        try (FileWriter writer = new FileWriter(filename)) {
-            for (String problem : history) {
-                writer.write(problem + "\n");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            for (Question question : history) {
+                // Write each field separated by a delimiter (using ||| to avoid conflicts)
+                writer.write(question.getId() + "|||"
+                        + question.getQuestion() + "|||"
+                        + question.getAnswerS() + "|||"
+                        + question.getDifficulty() + "\n");
             }
         }
     }
@@ -284,9 +352,34 @@ public class MathSolver {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
-                    history.add(line.trim());
+                    String[] parts = line.split("\\|\\|\\|");
+                    if (parts.length == 4) {
+                        Question question = new Question(
+                                parts[0].trim(), // id
+                                parts[1].trim(), // question
+                                parts[2].trim(), // answer
+                                parts[3].trim() // difficulty
+                        );
+                        history.add(question);
+                    }
                 }
             }
+        }
+    }
+
+    private String assessDifficultyInternal(String problem) {
+        try {
+            String assessment = assessDifficulty(problem);
+            // Extract difficulty level from assessment
+            if (assessment.toLowerCase().contains("dễ")) {
+                return "Easy";
+            }
+            if (assessment.toLowerCase().contains("khó")) {
+                return "Hard";
+            }
+            return "Medium";
+        } catch (Exception e) {
+            return "Medium"; // Default difficulty
         }
     }
 

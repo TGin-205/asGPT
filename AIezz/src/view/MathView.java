@@ -2,10 +2,11 @@ package view;
 
 import java.util.List;
 import java.util.Scanner;
+import model.Question;
 
 public class MathView {
 
-    private Scanner scanner;
+    private final Scanner scanner;
 
     public MathView() {
         scanner = new Scanner(System.in);
@@ -35,17 +36,82 @@ public class MathView {
         System.err.println(error);
     }
 
-    public void showHistory(List<String> history) {
+    public void showHistory(List<Question> history) {
         System.out.println("\n📚 Lịch sử bài toán:");
         if (history.isEmpty()) {
             System.out.println("Chưa có bài toán nào.");
             return;
         }
 
-        for (int i = 0; i < history.size(); i++) {
-            System.out.println((i + 1) + ". " + history.get(i));
+        for (Question q : history) {
+            System.out.println("ID: " + q.getId());
+            System.out.println("Câu hỏi: " + q.getQuestion());
+            System.out.println("Đáp án: " + q.getAnswerS());
+            System.out.println("Độ khó: " + q.getDifficulty());
+            System.out.println("-------------------");
         }
-        System.out.println();
+    }
+
+    public String inputCustomQuestion() {
+        System.out.print("Nhập câu hỏi: ");
+        return scanner.nextLine().trim();
+    }
+
+    public String inputCustomAnswer() {
+        System.out.print("Nhập đáp án: ");
+        return scanner.nextLine().trim();
+    }
+
+    public String inputCustomDifficulty() {
+        while (true) {
+            System.out.print("Nhập độ khó (Easy/Medium/Hard): ");
+            String difficulty = scanner.nextLine().trim();
+            if (difficulty.equalsIgnoreCase("Easy")
+                    || difficulty.equalsIgnoreCase("Medium")
+                    || difficulty.equalsIgnoreCase("Hard")) {
+                return difficulty;
+            }
+            System.out.println("❌ Độ khó không hợp lệ! Vui lòng nhập: Easy, Medium hoặc Hard");
+        }
+    }
+
+    public String[] inputSearch() {
+        System.out.println("\nTìm kiếm theo:");
+        System.out.println("1. Tất cả");
+        System.out.println("2. Câu hỏi");
+        System.out.println("3. Đáp án");
+        System.out.println("4. Độ khó");
+        System.out.print("Chọn loại tìm kiếm (1-4): ");
+
+        String type = scanner.nextLine().trim();
+        System.out.print("Nhập từ khóa tìm kiếm: ");
+        String keyword = scanner.nextLine().trim();
+
+        return new String[]{type, keyword};
+    }
+
+    public String inputQuestionId() {
+        System.out.print("Nhập ID câu hỏi (vd: Q1): ");
+        return scanner.nextLine().trim();
+    }
+
+    public boolean confirmDelete() {
+        System.out.print("Bạn có chắc muốn xóa câu hỏi này? (y/n): ");
+        String answer = scanner.nextLine().trim().toLowerCase();
+        return answer.equals("y") || answer.equals("yes");
+    }
+
+    public void showQuestion(Question question) {
+        if (question == null) {
+            System.out.println("Không tìm thấy câu hỏi!");
+            return;
+        }
+        System.out.println("\n=== Thông tin câu hỏi ===");
+        System.out.println("ID: " + question.getId());
+        System.out.println("Câu hỏi: " + question.getQuestion());
+        System.out.println("Đáp án: " + question.getAnswerS());
+        System.out.println("Độ khó: " + question.getDifficulty());
+        System.out.println("========================");
     }
 
     public void showHelp() {

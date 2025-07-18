@@ -4,6 +4,7 @@ import controller.MathController;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import model.Question;
 
 
 public class MathSolverGUI extends JFrame {
@@ -153,7 +154,7 @@ public class MathSolverGUI extends JFrame {
     }
     
     private void showHistory() {
-        java.util.List<String> history = controller.getModel().getHistory();
+        java.util.List<Question> history = controller.getModel().getHistory();
         StringBuilder sb = new StringBuilder();
         
         if (history.isEmpty()) {
