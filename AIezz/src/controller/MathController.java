@@ -22,6 +22,10 @@ public class MathController {
         return model;
     }
 
+    // =====================================
+    // NHÓM 1: CHỨC NĂNG CHÍNH - GIẢI TOÁN
+    // =====================================
+    
     public void solveProblem() {
         try {
             String problem = view.inputProblem();
@@ -66,37 +70,41 @@ public class MathController {
         }
     }
 
-    public void deleteQuestion() {
+    public void addCustomQuestion() {
         try {
-            String id = view.inputQuestionId();
-            if (id == null || id.trim().isEmpty()) {
-                view.showMessage("Vui lòng nhập ID!");
+            String question = view.inputCustomQuestion();
+            if (question == null || question.trim().isEmpty()) {
+                view.showMessage("Vui lòng nhập câu hỏi!");
                 return;
             }
 
-            Question question = model.findQuestionById(id);
-            if (question == null) {
-                view.showMessage("❌ Không tìm thấy câu hỏi với ID: " + id);
+            String answer = view.inputCustomAnswer();
+            if (answer == null || answer.trim().isEmpty()) {
+                view.showMessage("Vui lòng nhập đáp án!");
                 return;
             }
 
-            // Hiển thị thông tin câu hỏi trước khi xóa
-            view.showQuestion(question);
-
-            // Xác nhận xóa
-            if (view.confirmDelete()) {
-                if (model.deleteQuestion(id)) {
-                    view.showMessage("✅ Đã xóa câu hỏi thành công!");
-                } else {
-                    view.showMessage("❌ Không thể xóa câu hỏi!");
-                }
-            } else {
-                view.showMessage("Đã hủy xóa câu hỏi.");
+            String difficulty = view.inputCustomDifficulty();
+            if (difficulty == null || difficulty.trim().isEmpty()) {
+                view.showMessage("Vui lòng nhập độ khó!");
+                return;
             }
+
+            model.addCustomQuestion(question, answer, difficulty);
+            view.showMessage("✅ Đã thêm câu hỏi thành công!");
 
         } catch (Exception e) {
-            view.showError("Lỗi khi xóa câu hỏi: " + e.getMessage());
+            view.showError("Lỗi khi thêm câu hỏi: " + e.getMessage());
         }
+    }
+
+    // =====================================
+    // NHÓM 2: QUẢN LÝ LỊCH SỬ
+    // =====================================
+
+    public void showHistory() {
+        List<Question> history = model.getHistory();
+        view.showHistory(history);
     }
 
     public void searchHistory() {
@@ -134,7 +142,96 @@ public class MathController {
         }
     }
 
-    // TÍNH NĂNG MỚI - Xem thống kê
+    public void sortHistory() {
+        try {
+            String sortChoice = view.inputSortType();
+
+            MathSolver.SortType sortType = switch (sortChoice) {
+                case "1" ->
+                    MathSolver.SortType.DIFFICULTY_ASC;
+                case "2" ->
+                    MathSolver.SortType.DIFFICULTY_DESC;
+                case "3" ->
+                    MathSolver.SortType.ID_ASC;
+                case "4" ->
+                    MathSolver.SortType.ID_DESC;
+                default -> {
+                    view.showMessage("Lựa chọn không hợp lệ!");
+                    yield null;
+                }
+            };
+
+            if (sortType != null) {
+                List<Question> sortedHistory = model.getSortedHistory(sortType);
+                String sortInfo = getSortInfo(sortType);
+                view.showSortedHistory(sortedHistory, sortInfo);
+            }
+
+        } catch (Exception e) {
+            view.showError("Lỗi khi sắp xếp: " + e.getMessage());
+        }
+    }
+
+    public void filterByDifficulty() {
+        try {
+            String difficulty = view.inputDifficultyFilter();
+
+            if (difficulty.isEmpty()) {
+                view.showMessage("Lựa chọn không hợp lệ!");
+                return;
+            }
+
+            List<Question> filteredQuestions = model.getQuestionsByDifficulty(difficulty);
+
+            if (filteredQuestions.isEmpty()) {
+                view.showMessage("Không có bài toán nào với độ khó: " + difficulty);
+            } else {
+                String filterInfo = "Lọc theo độ khó: " + difficulty;
+                view.showSortedHistory(filteredQuestions, filterInfo);
+            }
+
+        } catch (Exception e) {
+            view.showError("Lỗi khi lọc: " + e.getMessage());
+        }
+    }
+
+    public void deleteQuestion() {
+        try {
+            String id = view.inputQuestionId();
+            if (id == null || id.trim().isEmpty()) {
+                view.showMessage("Vui lòng nhập ID!");
+                return;
+            }
+
+            Question question = model.findQuestionById(id);
+            if (question == null) {
+                view.showMessage("❌ Không tìm thấy câu hỏi với ID: " + id);
+                return;
+            }
+
+            // Hiển thị thông tin câu hỏi trước khi xóa
+            view.showQuestion(question);
+
+            // Xác nhận xóa
+            if (view.confirmDelete()) {
+                if (model.deleteQuestion(id)) {
+                    view.showMessage("✅ Đã xóa câu hỏi thành công!");
+                } else {
+                    view.showMessage("❌ Không thể xóa câu hỏi!");
+                }
+            } else {
+                view.showMessage("Đã hủy xóa câu hỏi.");
+            }
+
+        } catch (Exception e) {
+            view.showError("Lỗi khi xóa câu hỏi: " + e.getMessage());
+        }
+    }
+
+    // =====================================
+    // NHÓM 3: DỮ LIỆU & THỐNG KÊ
+    // =====================================
+
     public void showStatistics() {
         try {
             String historyStats = model.getHistoryStats();
@@ -147,22 +244,6 @@ public class MathController {
         } catch (Exception e) {
             view.showError("Lỗi khi xem thống kê: " + e.getMessage());
         }
-    }
-
-    // TÍNH NĂNG MỚI - Xóa cache
-    public void clearCache() {
-        try {
-            model.clearCache();
-            view.showMessage("✅ Đã xóa cache thành công!");
-
-        } catch (Exception e) {
-            view.showError("Lỗi khi xóa cache: " + e.getMessage());
-        }
-    }
-
-    public void showHistory() {
-        List<Question> history = model.getHistory();
-        view.showHistory(history);
     }
 
     public void saveHistory() {
@@ -198,6 +279,10 @@ public class MathController {
         }
     }
 
+    // =====================================
+    // NHÓM 4: HỆ THỐNG & HỖ TRỢ
+    // =====================================
+
     public void checkSystem() {
         view.showMessage("🔍 Kiểm tra hệ thống...");
 
@@ -212,35 +297,35 @@ public class MathController {
         }
     }
 
-    public void addCustomQuestion() {
+    public void clearCache() {
         try {
-            String question = view.inputCustomQuestion();
-            if (question == null || question.trim().isEmpty()) {
-                view.showMessage("Vui lòng nhập câu hỏi!");
-                return;
-            }
-
-            String answer = view.inputCustomAnswer();
-            if (answer == null || answer.trim().isEmpty()) {
-                view.showMessage("Vui lòng nhập đáp án!");
-                return;
-            }
-
-            String difficulty = view.inputCustomDifficulty();
-            if (difficulty == null || difficulty.trim().isEmpty()) {
-                view.showMessage("Vui lòng nhập độ khó!");
-                return;
-            }
-
-            model.addCustomQuestion(question, answer, difficulty);
-            view.showMessage("✅ Đã thêm câu hỏi thành công!");
+            model.clearCache();
+            view.showMessage("✅ Đã xóa cache thành công!");
 
         } catch (Exception e) {
-            view.showError("Lỗi khi thêm câu hỏi: " + e.getMessage());
+            view.showError("Lỗi khi xóa cache: " + e.getMessage());
         }
     }
 
     public void showHelp() {
         view.showHelp();
+    }
+
+    // =====================================
+    // HELPER METHODS
+    // =====================================
+
+    // Helper method để tạo thông tin sắp xếp
+    private String getSortInfo(MathSolver.SortType sortType) {
+        return switch (sortType) {
+            case DIFFICULTY_ASC ->
+                "Sắp xếp theo độ khó (Dễ → Khó)";
+            case DIFFICULTY_DESC ->
+                "Sắp xếp theo độ khó (Khó → Dễ)";
+            case ID_ASC ->
+                "Sắp xếp theo ID (Tăng dần)";
+            case ID_DESC ->
+                "Sắp xếp theo ID (Giảm dần)";
+        };
     }
 }
